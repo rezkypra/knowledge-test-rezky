@@ -1,23 +1,37 @@
-from golang:1.25.3-trixie as build
+# Start from the latest golang base image
+FROM golang:1.21-alpine AS builder
 
-workdir /go/src/
-add . /go/src/
-run go clean
-run go get
-run go install
-run go install github.com/swaggo/swag/cmd/swag@v1.16.4
-run swag init
+# Add Maintainer Info
+LABEL maintainer="Rezky <rezky@example.com>"
 
-# Build
-run CGO_ENABLED=0 GOOS=linux go build -o /go/bin/ktfs
+# Set the Current Working Directory inside the container
+WORKDIR /app
 
-from alpine:latest as prod
-run apk --no-cache add tzdata
-workdir /go/src
-copy --from=build go/bin/ktfs /go/bin/ktfs
-copy --from=build /go/src/.env /go/src/.env
+# Copy go mod and sum files
+COPY go.mod go.sum ./
 
-expose 8080
+# Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
+RUN go mod download
 
-# Run
-entrypoint [ "/go/bin/ktfs" ]
+# Copy the source from the current directory to the Working Directory inside the container
+COPY . .
+
+# Build the Go app
+# Assuming main.go is in the root. If it's in cmd/, change to: RUN go build -o main ./cmd/...
+RUN go build -o main .
+
+# Start a new stage from scratch
+FROM alpine:latest  
+
+WORKDIR /root/
+
+# Copy the Pre-built binary file from the previous stage
+COPY --from=builder /app/main .
+# Copy .env file if it exists (optional, but good practice)
+# COPY --from=builder /app/.env .  
+
+# Expose port 8080 to the outside world
+EXPOSE 8080
+
+# Command to run the executable
+CMD ["./main"]

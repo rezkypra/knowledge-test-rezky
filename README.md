@@ -1,38 +1,58 @@
-# Update Implementasi (Soal Pertama)
+# Soal Kedua - Project Solution & Integration
 
-Berikut adalah perubahan yang telah dilakukan untuk memenuhi kebutuhan soal tes:
+This repository contains the solution for "Soal Kedua" and instructions to integrate it with "Soal Pertama".
 
-## 1. Fitur Baru
-### a. Tabel Mata Kuliah (Subject) & Relasi
-- **Model**: Menambahkan `model/subject.go` dengan field `ID`, `Name`, dan `Credits`.
-- **Relasi**: Menambahkan relasi **Many-to-Many** antara `Student` dan `Subject` melalui tabel pivot `student_subjects`.
-- **Migrasi**: Update `database/migrate.go` untuk auto-migrate tabel subject.
+## Structure
 
-### b. API Endpoints
-Menambahkan endpoint baru di `route/api.go` dan handler di `handler/subject.go`:
-- **CRUD Subject**:
-  - `GET /api/v0/subject` - List semua mata kuliah
-  - `POST /api/v0/subject` - Tambah mata kuliah baru
-  - `GET /api/v0/subject/:uuid_subject` - Detail mata kuliah
-  - `PUT /api/v0/subject/:uuid_subject` - Update mata kuliah
-  - `DELETE /api/v0/subject/:uuid_subject` - Hapus mata kuliah
-- **Integrasi**:
-  - `POST /api/v0/student/subject` - Menambahkan mata kuliah ke mahasiswa (Attach).
+*   `web-dashboard/`: Next.js 14 application (Soal Kedua).
+*   `mobile-app/`: Flutter application (Soal Kedua).
+*   `Dockerfile`: Docker configuration for the Backend (Soal Pertama).
+*   `docker-compose.yml`: Orchestration for Backend, Database, and Web Dashboard.
 
-## 2. Keamanan & Enkripsi
-- **Kolom Email**: Menambahkan field `Email` pada struct `Student`.
-- **Enkripsi AES-256**: Implementasi enkripsi otomatis pada kolom email menggunakan **GORM Hooks** (`BeforeCreate`, `BeforeUpdate`, `AfterFind`).
-  - Email akan tersimpan dalam bentuk *ciphertext* di database.
-  - Email akan otomatis didekripsi menjadi *plaintext* saat di-query melalui aplikasi.
-- **Utils**: Helper enkripsi/dekripsi diletakkan di `utils/crypto.go`.
+## Integration Instructions
 
-## 3. Optimasi & Validasi (Nilai Tambah)
-- **Validasi Input**: Menambahkan tag `binding:"required"` pada struct request (`request/student.go`, `request/subject.go`) untuk mencegah input kosong.
-- **Docker Alpine**: Mengupdate `Dockerfile` dan `docker-compose.yml` untuk menggunakan image berbasis **Alpine Linux** (`alpine:latest`, `postgres:alpine`). Ini mengurangi ukuran image secara signifikan.
+To merge this with your existing "Soal Pertama" repository:
 
-## Cara Menjalankan Perubahan
-1. Tambahkan `ENCRYPTION_KEY` (32 karakter) pada file `.env`.
-2. Build ulang dan jalankan container:
-   ```shell
-   docker-compose up --build
-   ```
+1.  **Copy Files:**
+    Copy the following files/folders to the **root** of your `knowledge-test-rezky` repository:
+    *   `web-dashboard/`
+    *   `mobile-app/`
+    *   `Dockerfile` (The one in the root, for the backend)
+    *   `docker-compose.yml`
+
+2.  **Verify Backend Structure:**
+    Ensure your backend code (Go files) is in the root or matches the `Dockerfile` build path.
+
+3.  **Run Everything:**
+    Open a terminal in the root of your repository and run:
+    ```bash
+    docker-compose up --build
+    ```
+
+    This will start:
+    *   **Backend:** `http://localhost:8080`
+    *   **Database:** PostgreSQL on port `5432`
+    *   **Web Dashboard:** `http://localhost:3000`
+
+## Features
+
+### Web Dashboard
+*   **Dashboard:** Stats cards and Student Table.
+*   **Mata Kuliah:** Course management view.
+*   **Data Akademik:** Academic performance overview.
+*   **API:** Connects to `http://localhost:8080` (Configured in `docker-compose.yml`).
+
+### Mobile App
+*   **Login:** Clean UI (Version 2).
+*   **Home:** "Halo Dunia" screen.
+*   **Dark Mode:** System adaptive.
+*   **Run:** `cd mobile-app && flutter run`
+
+## Git Push
+After copying the files, commit and push to your repository:
+
+```bash
+git add .
+git commit -m "Add Soal Kedua (Web, Mobile) and Docker Integration"
+git push origin main
+```
